@@ -1,0 +1,70 @@
+<div class="body">
+    <br><br><br><br><br>
+    <div class="wrapper">
+        <div class="title-text">
+            <div class="title login" style="padding-left: 60px;" [style.marginLeft]="loginTextMargin">Login Form</div>
+            <div class="title signup" [style.marginLeft]="signupTextMargin">Signup Form</div> 
+        </div>
+        <div class="form-container">
+            <div class="slide-controls">
+                <input type="radio" name="slide" id="login" checked>
+                <input type="radio" name="slide" id="signup">
+                <label for="login" class="slide login" (click)="onLoginClick()">Login</label>
+                <label for="signup" class="slide signup" (click)="onSignupClick()">Signup</label>
+                <div class="slider-tab"></div>
+            </div>
+            <div class="form-inner">
+                <form class="login" [style.marginLeft]="loginFormMargin">
+                    <div class="field">
+                        <input type="text" placeholder="Email Address" required>
+                    </div>
+                    <div class="field">
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <div class="pass-link"><a href="#">Forgot password?</a></div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="Login">
+                    </div>
+                    <div class="signup-link">Not a member? <a href="#" (click)="onSignupLinkClick()">Signup now</a></div>
+                </form>
+                <form class="signup">
+                    <div class="field-group">
+                        <div class="field">
+                            <input type="text" placeholder="Nom" required>
+                        </div>
+                        <div class="field">
+                            <input type="text" placeholder="Prénom" required>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field">
+                            <input type="text" placeholder="Téléphone" required>
+                        </div>
+                        <div class="field">
+                            <input type="text" placeholder="CNI" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <input type="email" placeholder="Email Address" required>
+                    </div>
+                    <div class="field">
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    <div class="field">
+                        <input type="password" placeholder="Confirm password" required>
+                    </div>
+              
+                    <div class="field">
+                        <input type="text" placeholder="Role" required>
+                    </div>
+                    <div class="field btn">
+                        <div class="btn-layer"></div>
+                        <input type="submit" value="Signup">
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>

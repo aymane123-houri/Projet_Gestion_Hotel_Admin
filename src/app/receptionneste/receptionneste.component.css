@@ -1,0 +1,120 @@
+
+.product-image {
+    width: 150px; /* Définissez la largeur souhaitée */
+    height: auto; /* Laissez la hauteur s'ajuster automatiquement pour maintenir le rapport hauteur-largeur de l'image */
+  }
+  #dashboard-v1-table {
+    display: none;
+  }
+  .user-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+  .preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .animation__shake {
+    animation: shake 1.5s;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+  }
+  /* Modifie la couleur de fond du menu */
+  /* Couleur de fond du menu principal */
+  .main-sidebar {
+  background-color: #000000; /* noir foncé */
+  }
+  
+  /* Couleur du texte du menu */
+  .nav-sidebar .nav-link {
+  color: #ffcc00; /* Blanc */
+  }
+  
+/* Lorsque la souris survole un élément du menu */
+.nav-sidebar .nav-link:hover {
+    color: #ffffff; /* Changement de couleur du texte en blanc */
+    background-color: rgba(223, 215, 137, 0.3); /* Fond bleu avec une transparence (30%) */
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.4); /* Légère ombre portée transparente */
+    border-radius: 3px; /* Optionnel: pour arrondir légèrement les coins */
+  }
+
+  
+  /* Couleur de fond des éléments de menu actifs */
+  .nav-sidebar .nav-treeview>.nav-item>.nav-link.active {
+  background-color: #2980b9; /* Bleu */
+  }
+  
+  /* Couleur du texte des éléments de menu actifs */
+  .nav-sidebar .nav-treeview>.nav-item>.nav-link.active {
+  color: #ffcc00; /* Blanc */
+  }
+  
+  .nav-sidebar .nav-item .nav-link.active{
+    background-color:transparent; /* Garder le fond bleu */
+    color: #ffcc00; /* Texte jaune */
+    border: 2px solid #ffcc00; /* Garder le cadre jaune */
+  }
+
+  /* Couleur de fond du logo */
+  .brand-link {
+  background-color: #000000; /* noir foncé */
+  }
+  
+  /* Couleur du texte du logo */
+  .brand-link .brand-text {
+  color: #ffcc00; /* Blanc */
+  }
+  
+  
+  
+  /* Changer la couleur du texte en jaune au survol */
+.info a:hover {
+    color: #ffcc00; /* Jaune */
+}
+
+.modal-dialog {
+  max-width: 600px; /* Définir la largeur maximale du formulaire */
+  width: 80%; /* La largeur peut être ajustée en pourcentage */
+  margin: auto; /* Centrer horizontalement */
+}
+
+.modal-content {
+  height: 600px;
+  background-image: url('../../assets/images/imageReception.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Couleur noire avec 50% d'opacité */
+  background-blend-mode: overlay; /* Mélange l'image et la couleur */
+  color: white;
+}
+
+
+
+table#example1 tr {
+    height: 30px;  /* Ajustez selon vos besoins */
+  }
+  
+  table#example1 td, table#example1 th {
+    padding: 8px;  /* Réduisez la valeur de padding pour réduire la hauteur des cellules */
+  }
+  .card-body {
+    max-height: 400px;  /* Réduisez la hauteur maximale selon vos besoins */
+    overflow-y: auto;  /* Permet de faire défiler si le contenu dépasse la hauteur définie */
+  }
+  
