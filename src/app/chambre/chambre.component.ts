@@ -5,6 +5,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { Chambre } from '../modele/Chambre';
 import { ChambreService } from '../chambre.service';
 import { HttpClientModule } from '@angular/common/http';
+import Swal from 'sweetalert2';
 
 
 declare var $: any;
@@ -26,6 +27,44 @@ ngOnInit(): void {
   this.loadChambres();
 }
 
+ngAfterViewInit(): void {
+  const table = $('#example1').DataTable({
+    paging: true,  // Activer la pagination
+    lengthChange: true,  // Permet à l'utilisateur de changer le nombre d'éléments par page
+    pageLength: 3,  // Nombre d'éléments par page par défaut
+    searching: true,  // Activer la fonctionnalité de recherche
+    ordering: true,  // Activer le tri
+    info: true,  // Afficher le texte d'information en bas de la table
+    autoWidth: false ,
+
+    // Activer les boutons pour exporter les données
+    dom: '<"row"<"col-sm-6 text-start"f><"col-sm-6 text-end"B>>' +
+         '<"row"<"col-sm-12"tr>>' +
+         '<"row"<"col-sm-5 text-start"i><"col-sm-7 text-end"p>>',
+    buttons: [
+      {
+        extend: 'copy',       // Copier dans le presse-papiers
+        className: 'btn btn-dark' // Classe CSS personnalisée
+      },
+      {
+        extend: 'csv',        // Exporter en CSV
+        className: 'btn btn-dark' // Classe CSS personnalisée
+      },
+      {
+        extend: 'excel',      // Exporter en Excel
+        className: 'btn btn-dark' // Classe CSS personnalisée
+      },
+      {
+        extend: 'pdf',        // Exporter en PDF
+        className: 'btn btn-dark' // Classe CSS personnalisée
+      },
+      {
+        extend: 'print',      // Imprimer
+        className: 'btn btn-dark' // Classe CSS personnalisée
+      }
+    ]
+  });
+}
 // Charger toutes les chambres
 loadChambres(): void {
   this.chambreService.getAllChambres().subscribe(
@@ -113,7 +152,7 @@ loadChambres(): void {
 
 
 
-    deleteChambre(chambre: any): void {
+    /*deleteChambre(chambre: any): void {
       if (confirm('Êtes-vous sûr de vouloir supprimer ce chambre?')) {
         this.chambreService.deleteChambre(chambre.id).subscribe(
           (response) => {
@@ -126,28 +165,47 @@ loadChambres(): void {
           }
         );
       }
-    }
+    }*/
 
 
 
-
-
-
-
-
-
-
-  ngAfterViewInit(): void {
-    $('#example1').DataTable({
-      paging: true, // Activer la pagination
-      lengthChange: true, // Permet à l'utilisateur de changer le nombre d'éléments par page
-      pageLength: 3, // Nombre d'éléments par page par défaut
-      searching: true, // Activer la fonctionnalité de recherche
-      ordering: true, // Activer le tri
-      info: true, // Afficher le texte d'information en bas de la table
-      autoWidth: false // Désactiver l'ajustement automatique de la largeur des colonnes
-    }); // Initialisation de DataTables sur le tableau
-  }
+      deleteChambre(chambre: any): void {
+        console.log('Chambre ID to delete:', chambre.id);
+      
+        Swal.fire({
+          title: `Êtes-vous sûr de vouloir supprimer cette chambre?`,
+          text: "Cette action est irréversible!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Oui, supprimer!',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            this.chambreService.deleteChambre(chambre.id).subscribe(
+              (response) => {
+                Swal.fire(
+                  'Supprimé!',
+                  `La chambre ${chambre.id} a été supprimée avec succès.`,
+                  'success'
+                ).then(() => {
+                  // Mettre à jour la liste des chambres après la suppression
+                  this.loadChambres(); // Recharger les chambres après suppression
+                });
+              },
+              (error) => {
+                console.error('Erreur lors de la suppression de la chambre :', error);
+                Swal.fire(
+                  'Erreur!',
+                  'Une erreur est survenue lors de la suppression de la chambre.',
+                  'error'
+                );
+              }
+            );
+          }
+        });
+      }
+      
 
 
   reloadPage(route: string) {

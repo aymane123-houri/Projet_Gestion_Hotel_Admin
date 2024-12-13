@@ -15,6 +15,49 @@ declare var $: any;
   styleUrl: './receptionneste.component.css'
 })
 export class ReceptionnesteComponent implements OnInit, AfterViewInit {
+
+
+
+
+
+  ngAfterViewInit(): void {
+    const table = $('#example1').DataTable({
+      paging: true,  // Activer la pagination
+      lengthChange: true,  // Permet à l'utilisateur de changer le nombre d'éléments par page
+      pageLength: 3,  // Nombre d'éléments par page par défaut
+      searching: true,  // Activer la fonctionnalité de recherche
+      ordering: true,  // Activer le tri
+      info: true,  // Afficher le texte d'information en bas de la table
+      autoWidth: false ,
+
+      // Activer les boutons pour exporter les données
+      dom: '<"row"<"col-sm-6 text-start"f><"col-sm-6 text-end"B>>' +
+           '<"row"<"col-sm-12"tr>>' +
+           '<"row"<"col-sm-5 text-start"i><"col-sm-7 text-end"p>>',
+      buttons: [
+        {
+          extend: 'copy',       // Copier dans le presse-papiers
+          className: 'btn btn-dark' // Classe CSS personnalisée
+        },
+        {
+          extend: 'csv',        // Exporter en CSV
+          className: 'btn btn-dark' // Classe CSS personnalisée
+        },
+        {
+          extend: 'excel',      // Exporter en Excel
+          className: 'btn btn-dark' // Classe CSS personnalisée
+        },
+        {
+          extend: 'pdf',        // Exporter en PDF
+          className: 'btn btn-dark' // Classe CSS personnalisée
+        },
+        {
+          extend: 'print',      // Imprimer
+          className: 'btn btn-dark' // Classe CSS personnalisée
+        }
+      ]
+    });
+  }
   /*receptionnistes = [
     {
       id: 1,
@@ -140,26 +183,6 @@ loadReceptionist(): void {
     }
 
 
-
-
-
-
-
-
-
-
-
-  ngAfterViewInit(): void {
-    $('#example1').DataTable({
-      paging: true, // Activer la pagination
-      lengthChange: true, // Permet à l'utilisateur de changer le nombre d'éléments par page
-      pageLength: 3, // Nombre d'éléments par page par défaut
-      searching: true, // Activer la fonctionnalité de recherche
-      ordering: true, // Activer le tri
-      info: true, // Afficher le texte d'information en bas de la table
-      autoWidth: false // Désactiver l'ajustement automatique de la largeur des colonnes
-    }); // Initialisation de DataTables sur le tableau
-  }
 
   deleteReceptionniste(receptionniste: any) {
     // Implémentation pour supprimer un réceptionniste
