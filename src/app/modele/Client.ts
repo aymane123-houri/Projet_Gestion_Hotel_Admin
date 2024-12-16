@@ -3,7 +3,7 @@ export class Client {
     nom: string;
     prenom: string;
     email: string;
-    telephone: string;
+    telephone: number;
     adresse: string;
     cni: string;
     password: string;
@@ -13,7 +13,7 @@ export class Client {
       nom: string,
       prenom: string,
       email: string,
-      telephone: string,
+      telephone: number,
       adresse: string,
       cni: string,
       password: string

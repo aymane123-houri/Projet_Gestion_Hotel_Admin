@@ -9,7 +9,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 export class ChambreService {
 
 
-   private baseUrl = 'http://localhost:5000/chambres';
+   private baseUrl = 'http://127.0.0.1:5000/chambres';
  
    constructor(private http: HttpClient) { }
  
@@ -45,4 +45,5 @@ export class ChambreService {
    deleteChambre(id: number): Observable<void> {
      return this.http.delete<void>(`${this.baseUrl}/${id}`);
    }
+   
 }

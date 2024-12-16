@@ -181,7 +181,7 @@
             <!-- Main content -->
       <section class="content">
         <div class="container-fluid">
-        <div> <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addReceptionist">
+        <div> <button type="button" class="btn btn-warning" data-bs-toggle="modal" (click)="resetReceptionist()" data-bs-target="#addReceptionist">
                 <i class="fas fa-plus"></i>  Create A Receptionist
             </button>
         </div>
@@ -219,10 +219,10 @@
             <td>{{ receptionniste.role}}</td>
             <td>
               <div class="d-flex">
-                <button class="btn btn-danger me-2" (click)="deleteReceptionniste(receptionniste)">
-                  <i class="fas fa-trash-alt"></i> Delete
-                </button>
-                <button class="btn btn-warning" data-bs-toggle="modal" (click)="selectReceptionniste(receptionniste)" data-bs-target="#addClient">
+                <button class="btn btn-danger me-2" (click)="deleteReceptionist(receptionniste)">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+                  <button class="btn btn-warning" data-bs-toggle="modal" (click)="selectReceptionist(receptionniste)" data-bs-target="#addReceptionist">
                     <i class="fas fa-edit"></i> Edit
                   </button>
               </div>
@@ -242,57 +242,63 @@
         <div class="modal-dialog">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="exampleModalLabel">Create A Receptionniste</h1>
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Create A Receptionist</h1>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
         <div class="modal-body">
-            <form>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+            <div class="modal-body">
+                <!-- Formulaire dans la modale -->
+                    <form (ngSubmit)="onSubmit()" #userForm="ngForm">
+                        <div class="mb-3">
                         <label for="FirstName" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="FirstName" #FirstName required>
-                    </div>
-                    <div class="col-md-6 mb-3">
+                        <input type="text" class="form-control" id="FirstName" [(ngModel)]="receptioniste.nom" name="nom" required>
+                        </div>
+                    
+                        <div class="mb-3">
                         <label for="LastName" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="LastName" #LastName required>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
+                        <input type="text" class="form-control" id="LastName" [(ngModel)]="receptioniste.prenom" name="prenom" required>
+                        </div>
+                    
+                        <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" [(ngModel)]="receptioniste.email" name="email" required>
+                        </div>
+                    
+                        <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" [(ngModel)]="receptioniste.password" name="password" required>
+                        </div>
+                    
+                        <div class="mb-3">
                         <label for="tel" class="form-label">Tel</label>
-                        <input type="text" class="form-control" id="tel" #tel required>
-                    </div>
-                    <div class="col-md-6 mb-3">
+                        <input type="number" class="form-control" id="tel" [(ngModel)]="receptioniste.telephone" name="telephone" required>
+                        </div>
+                    
+                        <div class="mb-3">
                         <label for="cni" class="form-label">CNI</label>
-                        <input type="text" class="form-control" id="cni" #cni required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" #email required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" #password required>
-                </div>
-                <div class="mb-3">
-                    <label for="role" class="form-label">Role</label>
-                    <select class="form-select" id="role" name="role" required>
-                        <option value="" disabled selected>-- Select Role --</option>
-                        <option value="admin">Admin</option>
-                        <option value="receptionist">Receptionist</option>
-                    </select>
-                </div>
-                <br>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">{{ receptionist.id ? 'Update Receptionist' : 'Add Receptionist' }}</button>
-                </div>
-            </form>
+                        <input type="text" class="form-control" id="cni" [(ngModel)]="receptioniste.cni" name="cni" required>
+                        </div>
+                    
+                        <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="address" [(ngModel)]="receptioniste.adresse" name="adresse" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Role</label>
+                            <select class="form-select" id="role" [(ngModel)]="receptioniste.role" name="role" required>
+                                <option value="" disabled selected>-- Select Role --</option>
+                                <option value="admin">Admin</option>
+                                <option value="receptionist">Receptionist</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">{{ receptioniste.id ? 'Update Receptionist' : 'Add Receptionist' }}</button>
+                        </div>
+                    </form>
+  
+              </div>
+              
         
                     
          </div>

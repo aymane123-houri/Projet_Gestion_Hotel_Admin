@@ -181,7 +181,7 @@
             <!-- Main content -->
       <section class="content">
         <div class="container-fluid">
-        <div> <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addClient">
+        <div> <button type="button" class="btn btn-warning" data-bs-toggle="modal" (click)="resetClient()" data-bs-target="#addClient">
                 <i class="fas fa-plus"></i>  Create A Client
             </button>
         </div>
@@ -243,7 +243,7 @@
         <div class="modal-dialog">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="exampleModalLabel">Create A lient</h1>
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Create A Client</h1>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
         <div class="modal-body">
@@ -272,7 +272,7 @@
                     
                         <div class="mb-3">
                         <label for="tel" class="form-label">Tel</label>
-                        <input type="text" class="form-control" id="tel" [(ngModel)]="client.telephone" name="telephone" required>
+                        <input type="number" class="form-control" id="tel" [(ngModel)]="client.telephone" name="telephone" required>
                         </div>
                     
                         <div class="mb-3">

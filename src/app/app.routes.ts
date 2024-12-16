@@ -6,6 +6,7 @@ import { ChambreComponent } from './chambre/chambre.component';
 import { LoginComponent } from './login/login.component';
 import { ReceptionnesteComponent } from './receptionneste/receptionneste.component';
 import { ClientComponent } from './client/client.component';
+import { ReservationFormsComponent } from './reservation-forms/reservation-forms.component';
 
 
 export const routes: Routes = [
@@ -18,5 +19,6 @@ export const routes: Routes = [
     {path : 'client', component : ClientComponent},
     { path: 'edit-client/:id', component: ClientComponent },
     { path: 'add-client', component: ClientComponent }, 
+    { path: 'form_reservation/:id', component: ReservationFormsComponent }, 
 
 ];

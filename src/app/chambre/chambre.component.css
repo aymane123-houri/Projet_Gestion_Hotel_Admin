@@ -150,4 +150,6 @@ table#example1 tr {
     opacity: 0.6; /* Réglage de la transparence de l'image */
     z-index: -1; /* Place l'image derrière le contenu */
   }
+
+  
   

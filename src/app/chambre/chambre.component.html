@@ -200,6 +200,7 @@
                             <th>Room Type</th>
                             <th>Price</th>
                             <th>Available</th>
+                            <th>Image</th>
                             <th>Actions</th>
                             
                         </tr>
@@ -211,9 +212,11 @@
                             <td>{{ chambre.nombre_lits }}</td>
                             <td>{{ chambre.prix }}</td>
                             <td>{{ chambre.disponible }}</td>
+                            <td><img *ngIf="chambre.image" [src]="'data:image/png;base64,' + chambre.image" alt="Image de la chambre" style="width: 80px; height: auto;" /></td>
+
                             <td>
                                 <div class="d-flex">
-                                    <button class="btn btn-danger me-2" (click)="deleteChambre(chambre)">
+                                    <button class="btn btn-danger me-2" (click)="confirmDeleteChambre(chambre)">
                                         <i class="fas fa-trash-alt"></i> Delete
                                     </button>
                                     <button class="btn btn-warning" data-bs-toggle="modal" (click)="selectChambre(chambre)" data-bs-target="#addChambre">
@@ -241,7 +244,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form (ngSubmit)="onSubmit()" #userForm="ngForm">
     
                         <div class="mb-3">
                             <label for="chambreNumero" class="form-label">Room Number</label>
@@ -249,25 +252,35 @@
                         </div>
     
                         <div class="mb-3">
-                            <label for="typeChambre" class="form-label">Room Type</label>
-                            <input type="text" class="form-control" id="typeChambre" [(ngModel)]="chambre.nombre_lits" name="typeChambre" required>
+                            <label for="typeChambre" class="form-label">Nombre lit</label>
+                            <input type="number" class="form-control" id="typeChambre" [(ngModel)]="chambre.nombre_lits" name="typeChambre" required>
                         </div>
     
                         <div class="mb-3">
                             <label for="prix" class="form-label">Price</label>
-                            <input type="number" step="0.01" class="form-control" id="prix"[(ngModel)]="chambre.prix" name="prix" required>
+                            <input type="number" step="0.01" class="form-control" id="prix" [(ngModel)]="chambre.prix" name="prix" required>
                         </div>
     
                         <div class="mb-3">
                             <label for="disponible" class="form-label">Available</label>
-                            <select class="form-select" id="disponible" [(ngModel)]="chambre.disponible" name="disponible" required>
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
+                            <select 
+                                class="form-select" 
+                                id="disponible" 
+                                [(ngModel)]="chambre.disponible" 
+                                name="disponible" 
+                                required 
+                                (change)="convertToBoolean()">
+                                <option [value]="true">Yes</option>
+                                <option [value]="false">No</option>
                             </select>
                         </div>
-
+                        
+                        <div>
+                            <label for="image">Image:</label>
+                            <input type="file" id="image" (change)="onFileSelected($event)" [(ngModel)]="chambre.image" required />
+                          </div>
                         <div class="mb-3">
-                            <label for="description" class="form-label">Price</label>
+                            <label for="description" class="form-label">description</label>
                             <input type="text" step="0.01" class="form-control" id="description" [(ngModel)]="chambre.description" name="description" required>
                         </div>
     
@@ -283,4 +296,25 @@
     
 
 </div>
+
+          <!-- Modal -->
+          <div class="modal fade" id="confirmDeleteChambreModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteChambreModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmDeleteChambreModalLabel">Confirm Deletion</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to delete this product?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-danger" (click)="deleteConfirmedChambre()">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
 

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Client } from '../modele/Client';
 import { ClientService } from '../client.service';
+import { kill } from 'process';
+
 
 
 declare var $: any;
@@ -95,22 +97,13 @@ ngAfterViewInit(): void {
 
 
 
-  client: Client = new Client(0, '', '', '', '', '', '', '');  // Initialiser un objet User vide
+  client: Client = new Client(0, '', '', '', 0, '', '', '');  // Initialiser un objet User vide
 
 
   // Méthode pour soumettre le formulaire
   onSubmit(): void {
-    /*this.clientService.addClient(this.client).subscribe(
-      (response) => {
-        console.log('Utilisateur ajouté avec succès!', response);
-        // Vous pouvez afficher un message de succès ou rediriger l'utilisateur vers une autre page
-      },
-      (error) => {
-        console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
-        // Afficher un message d'erreur à l'utilisateur
-      }
-    );*/
 
+    console.log('Formulaire soumis', this.client);   // Ajouter un log pour vérifier les données envoyées
 
     if (this.client.id) {
       // Si l'ID existe, c'est une modification
@@ -144,6 +137,8 @@ ngAfterViewInit(): void {
     this.client = { ...client };
     console.log('Client sélectionné pour modification :', this.client);
   }
+
+
     // Méthode pour récupérer l'utilisateur existant
     getUserById(id: number): void {
       this.clientService.getClientById(id).subscribe(
@@ -174,5 +169,52 @@ ngAfterViewInit(): void {
         );
       }
     }
+    
+
+
+    resetClient(): void {
+      this.client = new Client(0, '', '', '', 0, '', '', ''); // Réinitialiser l'objet client
+      console.log('Client réinitialisé pour l\'ajout');
+    }
+
+
+
+
+
+
+
+
+
+
+    /*createClient(): void {
+      console.log('Création du client:', this.client);
+  
+      this.clientService.addClient(this.client).subscribe(
+        (response) => {
+          console.log('Utilisateur ajouté avec succès!', response);
+          this.router.navigate(['/clients']); // Rediriger après l'ajout
+        },
+        (error) => {
+          console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
+        }
+      );
+    }
+  
+    // Méthode pour mettre à jour un client
+    updateClient(): void {
+      console.log('Mise à jour du client:', this.client);
+  
+      this.clientService.updateClient(this.client).subscribe(
+        (response) => {
+          console.log('Utilisateur mis à jour avec succès!', response);
+          this.router.navigate(['/clients']); // Rediriger après la mise à jour
+        },
+        (error) => {
+          console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+        }
+      );
+    }*/
+
+
     
 }

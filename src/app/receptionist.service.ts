@@ -8,7 +8,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 })
 export class ReceptionistService {
 
- private baseUrl = 'http://localhost:8085/Receptionists';
+ private baseUrl = 'http://localhost:8085/Administrator';
 
   constructor(private http: HttpClient) { }
 

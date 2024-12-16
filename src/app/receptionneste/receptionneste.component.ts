@@ -112,19 +112,21 @@ loadReceptionist(): void {
 
 
 
-  receptionist: Receptionist = new Receptionist(0, '', '', '', '', '', '', '','');  // Initialiser un objet User vide
+  receptioniste: Receptionist = new Receptionist(0, '', '', '', '', '', '', '','');  // Initialiser un objet User vide
 
 
   // Méthode pour soumettre le formulaire
+  // Méthode pour soumettre le formulaire
   onSubmit(): void {
 
+    console.log('Formulaire soumis', this.receptioniste);   // Ajouter un log pour vérifier les données envoyées
 
-    if (this.receptionist.id) {
+    if (this.receptioniste.id) {
       // Si l'ID existe, c'est une modification
-      this.receptionistService.updateReceptionist(this.receptionist).subscribe(
+      this.receptionistService.updateReceptionist(this.receptioniste).subscribe(
         (response) => {
           console.log('Utilisateur mis à jour avec succès!', response);
-          this.router.navigate(['/chambre']); // Rediriger après la mise à jour
+          this.router.navigate(['/reception']); // Rediriger après la mise à jour
         },
         (error) => {
           console.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
@@ -132,10 +134,10 @@ loadReceptionist(): void {
       );
     } else {
       // Sinon, c'est une création
-      this.receptionistService.addReceptionist(this.receptionist).subscribe(
+      this.receptionistService.addReceptionist(this.receptioniste).subscribe(
         (response) => {
           console.log('Utilisateur ajouté avec succès!', response);
-          this.router.navigate(['/chambre']); // Rediriger après l'ajout
+          this.router.navigate(['/reception']); // Rediriger après l'ajout
         },
         (error) => {
           console.error('Erreur lors de l\'ajout de l\'utilisateur:', error);
@@ -146,19 +148,20 @@ loadReceptionist(): void {
   }
   
 
-  selectChambre(receptionist: Receptionist) {
+  selectReceptionist(receptioniste: Receptionist) {
     // Affecter les informations du client sélectionné à l'objet client
-    this.receptionist = { ...receptionist };
-    console.log('Chambre sélectionné pour modification :', this.receptionist);
+    this.receptioniste = { ...receptioniste};
+    console.log('Receptionist sélectionné pour modification :', this.receptioniste);
   }
+  
     // Méthode pour récupérer l'utilisateur existant
-    getChambreById(id: number): void {
+    getReceptionistById(id: number): void {
       this.receptionistService.getReceptionistById(id).subscribe(
         (response) => {
-          this.receptionist = response;
+          this.receptioniste = response;
         },
         (error) => {
-          console.error('Erreur lors de la récupération de chambre:', error);
+          console.error('Erreur lors de la récupération de Receptionist:', error);
           // Afficher un message d'erreur à l'utilisateur
         }
       );
@@ -167,12 +170,12 @@ loadReceptionist(): void {
 
 
 
-    deleteChambre(chambre: any): void {
+    deleteReceptionist(receptionist: any): void {
       if (confirm('Êtes-vous sûr de vouloir supprimer ce chambre?')) {
-        this.receptionistService.deleteReceptionist(chambre.id).subscribe(
+        this.receptionistService.deleteReceptionist(receptionist.id).subscribe(
           (response) => {
             console.log('Client supprimé avec succès!', response);
-            // Mettre à jour la liste des chambres
+            // Mettre à jour la liste des Receptionist
             this.loadReceptionist(); // Recharger les clients après suppression
           },
           (error) => {
@@ -184,20 +187,18 @@ loadReceptionist(): void {
 
 
 
-  deleteReceptionniste(receptionniste: any) {
-    // Implémentation pour supprimer un réceptionniste
-    alert('Réceptionniste supprimé : ' + receptionniste.id);
-  }
-
-  selectReceptionniste(receptionniste: any) {
-    // Implémentation pour sélectionner un réceptionniste à modifier
-    alert('Réceptionniste sélectionné pour modification : ' + receptionniste.id);
-  }
-
   reloadPage(route: string) {
     this.router.navigateByUrl(route).then(() => {
       window.location.reload(); // Recharge la page
     });
   }
 
+
+
+
+      resetReceptionist(): void {
+        this.receptioniste = new Receptionist(0, '', '', '', '', '', '', '',""); // Réinitialiser l'objet client
+        console.log('Client réinitialisé pour l\'ajout');
+      }
+  
 }

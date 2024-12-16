@@ -1,75 +1,46 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import Swal from 'sweetalert2';
 import { ReservationService } from '../reservation.service';
+import { Reservation } from '../modele/Reservation';
+import { Chambre } from '../modele/Chambre';
+import { HttpClientModule } from '@angular/common/http';
 
 declare var $: any;  // Déclare jQuery pour l'utiliser dans votre composant
 
 @Component({
   selector: 'app-reservation',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, CommonModule, FormsModule, RouterLink, RouterLinkActive,HttpClientModule],
   templateUrl: './reservation.component.html',
   styleUrls: ['./reservation.component.css'] // Correction du nom du styleUrl en styleUrls
 })
 export class ReservationComponent implements OnInit, AfterViewInit {
-  reservations = [
-    {
-      id: 1,
-      userId: 101,
-      chambreId: 201,
-      dateDebut: new Date('2024-12-05'),
-      dateFin: new Date('2024-12-08'),
-      montantTotal: 300
-    },
-    {
-      id: 2,
-      userId: 102,
-      chambreId: 202,
-      dateDebut: new Date('2024-12-06'),
-      dateFin: new Date('2024-12-08'),
-      montantTotal: 250
-    },
-    {
-      id: 3,
-      userId: 103,
-      chambreId: 203,
-      dateDebut: new Date('2024-12-07'),
-      dateFin: new Date('2024-12-12'),
-      montantTotal: 500
-    },
-    {
-      id: 4,
-      userId: 104,
-      chambreId: 204,
-      dateDebut: new Date('2024-12-08'),
-      dateFin: new Date('2024-12-09'),
-      montantTotal: 150
-    },
-    {
-      id: 5,
-      userId: 104,
-      chambreId: 204,
-      dateDebut: new Date('2024-12-08'),
-      dateFin: new Date('2024-12-09'),
-      montantTotal: 150
-    },
-    {
-      id: 6,
-      userId: 104,
-      chambreId: 204,
-      dateDebut: new Date('2024-12-08'),
-      dateFin: new Date('2024-12-09'),
-      montantTotal: 150
-    }
-  ];
+  
 
   constructor(private router: Router,private reservationService: ReservationService) {}
 
+  reservation: Reservation = new Reservation(0, 0, 0, new Date(), new Date(), 0, 1, 0,0); // Valeurs par défaut
+  chambresDisponibles: Chambre[] = [];
+  toutesLesChambres: Chambre[] = []; // Toutes les chambres disponibles
+  errorMessage: string = '';
+
   ngOnInit(): void {
-    // Pas de modification nécessaire dans ngOnInit
+    this.loadReservation()
+    // Charger toutes les chambres au début
+    this.reservationService.getAllChambres().subscribe(
+      (response) => {
+        this.toutesLesChambres = response;
+        this.chambresDisponibles = [...this.toutesLesChambres]; // Afficher toutes les chambres par défaut
+      },
+      (error) => {
+        this.errorMessage = 'Erreur lors de la récupération des chambres.';
+        console.error('Erreur:', error);
+      }
+    );
+    
   }
 
 ngAfterViewInit(): void {
@@ -188,4 +159,88 @@ ngAfterViewInit(): void {
       window.location.reload(); // Recharge la page
     });
   }
+
+  submitForm() {
+    // Vérification des dates (s'il y a une date de début et de fin valides)
+    if (!this.reservation.date_debut || !this.reservation.date_fin) {
+      this.errorMessage = 'Les dates doivent être valides.';
+      return;
+    }
+
+    // Vérification que la date de fin est après la date de début
+    if (this.reservation.date_fin <= this.reservation.date_debut) {
+      this.errorMessage = 'La date de fin doit être après la date de début.';
+      return;
+    }
+
+    // Convertir les dates en format 'yyyy-MM-dd'
+    const formattedDateDebut = formatDate(this.reservation.date_debut, 'yyyy-MM-dd', 'en-US');
+    const formattedDateFin = formatDate(this.reservation.date_fin, 'yyyy-MM-dd', 'en-US');
+
+    // Appel au service pour obtenir les chambres disponibles en fonction des critères de la recherche
+    this.reservationService.getChambresDisponibles(formattedDateDebut, formattedDateFin, this.reservation.nombreAdulte, this.reservation.nombreEnfant)
+      .subscribe(
+        (response) => {
+          this.chambresDisponibles = response; // Afficher les chambres disponibles après la recherche
+          this.errorMessage = '';  // Réinitialiser l'erreur
+        },
+        (error) => {
+          this.chambresDisponibles = this.toutesLesChambres; // Réinitialiser à toutes les chambres en cas d'erreur
+          this.errorMessage = 'Erreur lors de la récupération des chambres disponibles.';
+          console.error('Erreur lors de la récupération des chambres:', error);
+        }
+      );
+  }
+  
+
+  reservations: Reservation[] = [];
+  loadReservation(): void {
+    this.reservationService.getAllReservation().subscribe(
+      (data) => {
+        this.reservations = data;
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des chambres :', error);
+      }
+    );
+  }
+  
+
+  bookNow(chambreId: number): void {
+    const url = `/form_reservation/${chambreId}`;
+    window.location.href = url;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+goToReservationForm(chambreId: number, date_debut: string, date_fin: string, adulte: number, enfant: number): void {
+  this.router.navigate(['/form_reservation', chambreId], {
+      queryParams: {
+          date_debut: date_debut,
+          date_fin: date_fin,
+          adulte: adulte,
+          enfant: enfant
+      }
+  });
+}
+
+
+
+
+
+
+date_debut!: string;  // Date de début
+date_fin!: string;    // Date de fin
+adulte!: number;      // Nombre d'adultes
+enfant!: number;      // Nombre d'enfants
 }
