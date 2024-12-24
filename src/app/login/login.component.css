@@ -229,3 +229,32 @@ form .btn input[type="submit"] {
 .field-group .field {
   width: 48%; /* Donne une largeur de 48% pour chaque champ dans la ligne */
 }
+
+
+
+
+
+
+
+.form-inner form .field select {
+  height: 50px;
+  width: 100%;
+  padding-left: 15px;
+  border-radius: 15px;
+  border: 1px solid lightgrey;
+  border-bottom-width: 2px;
+  font-size: 17px;
+  transition: all 0.3s ease;
+}
+
+.form-inner form .field select:focus {
+  border-color: #1a75ff;
+}
+
+.form-inner form .field select::placeholder {
+  color: #999;
+}
+
+.form-inner form .field select:focus::placeholder {
+  color: #1a75ff;
+}

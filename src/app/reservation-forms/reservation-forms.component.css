@@ -1,0 +1,81 @@
+.user-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    text-align: center;
+  }
+  
+  .writing-effect {
+    font-size: 1.2em;
+    color: transparent;  /* Texte transparent pour appliquer le dégradé sur le texte */
+    font-family: 'Courier New', Courier, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    width: 0;
+    background: linear-gradient(90deg, #ffcc00, #ffffff); /* Dégradé de jaune à blanc */
+    -webkit-background-clip: text; /* Applique le dégradé au texte */
+    animation: typing 3s steps(30) 1s forwards, blink-caret 0.75s step-end infinite;
+  }
+  
+  @keyframes typing {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+  
+  @keyframes blink-caret {
+    50% {
+      border-color: transparent;
+    }
+    100% {
+      border-color: white;
+    }
+  }
+  
+
+.chambre-details {
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.image-container {
+    flex: 1;
+    max-width: 150px;
+    margin-right: 16px;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.details-container {
+    flex: 2;
+}
+
+.details-container h3 {
+    margin: 0 0 8px;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.details-container p {
+    margin: 0;
+    color: #666;
+    line-height: 1.6;
+}

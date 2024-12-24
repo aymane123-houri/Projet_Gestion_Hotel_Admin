@@ -104,17 +104,27 @@
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <a href="#" class="brand-link">
-            <img src="../../assets/images/logoHotel.png" alt="Logo"    class="brand-image img-circle elevation-3 zoom-effect" style="opacity: .8; width: 50px; height: 50px;">
-            <span class="brand-text font-weight-light">Royal Resort</span>
+            <img src="../../assets/images/logoHotel.png" alt="logoHotel" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 10px;">      
+            <span class="brand-text font-weight-light"> Royal Resort</span>
         </a>
 
         <div class="sidebar">
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image">
-                    <img src="../../assets/images/logoSignin.jpg" class="img-circle elevation-2" alt="User">
+            <br>
+            <div class="user-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 180px; text-align: center;">
+                <h4 [@writingEffect] class="writing-effect">
+                    Hello {{userRole}} !!
+                </h4>
+                <h4 [@writingEffect] class="writing-effect">
+                    {{nom}} {{prenom}}
+                </h4>
+            </div>
+            
+            <br>
+            <div class="user-panel" style="display: flex; align-items: center; gap: 10px; background-color: transparent;">
+                <div class="image" style="flex: 0 0 auto; text-align: center;">
+                    <img src="../../assets/images/iconesAdmin.png" alt="User" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 </div>
-                <div class="info">
-                    <a href="/admin" class="d-block">User Name</a>
+                <div style="flex: 1; text-align: left;"><p style="margin: 0; font-size: 1em; color: white; font-family: Arial, sans-serif;">{{ email }}</p>
                 </div>
             </div>
             <nav class="mt-2">
@@ -125,19 +135,19 @@
                             <p>Dashboard</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/chambre" class="nav-link" (click)="reloadPage('/chambre')">
                             <i class="fas fa-bed nav-icon"></i>
                             <p> Rooms</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/client" class="nav-link" (click)="reloadPage('/client')">
                             <i class="fas fa-users nav-icon"></i>
                             <p> Clients</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/reception" class="nav-link" (click)="reloadPage('/reception')">
                             <i class="fas fa-user-tie nav-icon"></i>
                             <p> Receptionists</p>
@@ -149,8 +159,15 @@
                             <p>Reservations</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
+                        <a href="http://localhost:6060/d/spring_boot_21/spring-boot-3-x-statistics?orgId=1&from=now-1h&to=now&timezone=browser&var-application=Receptionist%20Service&var-Namespace=&var-instance=receptionist-service:8085&var-hikaricp=&var-memory_pool_heap=$__all&var-memory_pool_nonheap=$__all" class="nav-link" target="_blank">
+                          <img src="../../assets/images/logoGrafana.webp" alt="Grafana" style="width: 20px; height: 20px; margin-right: 8px;">
+                          <p>Grafana Dashboard</p>
+                        </a>
+                      </li>
+                      
+                    <li class="nav-item" >
+                        <a (click)="logout()" class="nav-link">
                             <i class="nav-icon fas fa-sign-out-alt"></i>
                             <p>Logout</p>
                         </a>
@@ -186,7 +203,7 @@
                         <!-- small box -->
                         <div class="small-box bg-info">
                             <div class="inner">
-                                <h3>100</h3>
+                                <h3 style="color: white;">{{numberOfChambres}}</h3>
                                 <p><b>Rooms</b></p>
                             </div>
                             <div class="icon">
@@ -200,7 +217,7 @@
                         <!-- small box -->
                         <div class="small-box bg-danger">
                             <div class="inner">
-                                <h3>45</h3>
+                                <h3 style="color: white;">{{numberOfReceptionists}}</h3>
                                 <p><b>Receptionists</b></p>
                             </div>
                             <div class="icon">
@@ -213,7 +230,7 @@
                         <!-- small box -->
                         <div class="small-box bg-success">
                             <div class="inner">
-                                <h3>45</h3>
+                                <h3 style="color: white;">{{numberOfClients}}</h3>
                                 <p><b>Clients</b></p>
                             </div>
                             <div class="icon">
@@ -226,7 +243,7 @@
                         <!-- small box -->
                         <div class="small-box bg-warning">
                             <div class="inner">
-                                <h3 style="color: white;">56</h3>
+                                <h3 style="color: white;">{{numberOfReservations}}</h3>
                                 <p style="color: white;"><b>Reservations</b></p>
                             </div>
                             <div class="icon">
@@ -235,8 +252,10 @@
                             <a href="/reservation" class="small-box-footer"><span style="color: white;"> More info </span><i class="fas fa-arrow-circle-right" style="color: white;"></i></a>
                         </div>
                     </div>
+                    
                 </div>
             </div><!-- /.container-fluid -->
+     
         </section>
         <!-- /.content -->
     </div>

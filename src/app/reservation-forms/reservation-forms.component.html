@@ -104,20 +104,31 @@
 
   
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <a href="#" class="brand-link">
-            <img src="../../assets/images/logoHotel.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-            <span class="brand-text font-weight-light">Royal Resort</span>
-        </a>
+      <a href="#" class="brand-link">
+        <img src="../../assets/images/logoHotel.png" alt="logoHotel" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 10px;">      
+        <span class="brand-text font-weight-light"> Royal Resort</span>
+    </a>
 
         <div class="sidebar">
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image">
-                    <img src="../../assets/images/logoSignin.jpg" class="img-circle elevation-2" alt="User">
-                </div>
-                <div class="info">
-                    <a href="/admin" class="d-block">User Name</a>
-                </div>
-            </div>
+          <br>
+          <div class="user-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 180px; text-align: center;">
+              <h4 [@writingEffect] class="writing-effect">
+                  Hello
+              </h4>
+              <h4 [@writingEffect] class="writing-effect">
+                  {{nom}} {{prenom}}
+              </h4>
+          </div>
+          
+          <br>
+          <div class="user-panel" style="display: flex; align-items: center; gap: 10px; background-color: transparent;">
+              <div class="image" style="flex: 0 0 auto; text-align: center;">
+                  <img src="../../assets/images/iconesAdmin.png" alt="User" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+              </div>
+              <div style="flex: 1; text-align: left;"><p style="margin: 0; font-size: 1em; color: white; font-family: Arial, sans-serif;">{{ email }}</p>
+              </div>
+          </div>
+
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" role="menu">
                     <li class="nav-item">
@@ -126,19 +137,19 @@
                             <p>Dashboard</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/chambre" class="nav-link" (click)="reloadPage('/chambre')">
                             <i class="fas fa-bed nav-icon"></i>
                             <p> Rooms</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/client" class="nav-link" (click)="reloadPage('/client')">
                             <i class="fas fa-users nav-icon"></i>
                             <p> Clients</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a href="/reception" class="nav-link" (click)="reloadPage('/reception')">
                             <i class="fas fa-user-tie nav-icon"></i>
                             <p> Receptionists</p>
@@ -150,8 +161,8 @@
                             <p> Reservations</p>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item" >
+                        <a (click)="logout()" class="nav-link">
                             <i class="nav-icon fas fa-sign-out-alt"></i>
                             <p>Logout</p>
                         </a>
@@ -298,8 +309,15 @@
             <!-- Booking End -->
     
             <div *ngIf="chambre">
-                <h3>{{ chambre.numero }} - {{ chambre.prix }} €/nuit</h3>
-                <p>{{ chambre.description }}</p>
+              <div class="chambre-details" >
+                <div class="image-container">
+                  <img *ngIf="chambre.image" [src]="'data:image/png;base64,' + chambre.image" alt="Image de la chambre" />
+                </div>
+                <div class="details-container">
+                    <h3>{{ chambre.numero }} - {{ chambre.prix }} €/nuit</h3>
+                    <p>{{ chambre.description }}</p>
+                </div>
+            </div>
             
             <!-- Booking Start -->
             <div class="container-xxl py-5">
@@ -340,9 +358,9 @@
                                 [(ngModel)]="client.prenom"
                                 type="text"
                                 class="form-control"
-                                id="firstName"
+                                id="prenom"
                                 placeholder="First Name"
-                                formControlName="firstName"
+                                formControlName="prenom"
                               />
                               <label for="firstName">First Name</label>
                             </div>
@@ -352,9 +370,9 @@
                               <input
                                 type="text"
                                 class="form-control"
-                                id="lastName"
+                                id="nom"
                                 placeholder="Last Name"
-                                formControlName="lastName"
+                                formControlName="nom"
                                 [(ngModel)]="client.nom"
                               />
                               <label for="lastName">Last Name</label>
@@ -471,7 +489,7 @@
 </div-->
 
 <div class="row justify-content-center">
-  <div class="col-lg-8">
+  <div class="col-lg-8"  *ngIf="showBookingForm">
     <h3 class="text-center mb-4">Reservation Details</h3>
     <form [formGroup]="bookingForm" (ngSubmit)="onSubmitBookingForm()">
       <div class="row g-3">
@@ -558,22 +576,24 @@
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody *ngIf="reservations && reservations.length > 0">
           <tr *ngFor="let reservation of reservations">
             <td>{{ reservation.id }}</td>
             <td>{{ reservation.user_id }}</td>
             <td>{{ reservation.chambre_id }}</td>
             <td>{{ reservation.date_debut | date:'shortDate' }}</td>
-            <td>{{ reservation.date_fin | date:'shortDate' }}</td>
+            <td>{{ reservation.date_fin | date:'shortDate'  }}</td>
             <td>{{ reservation.montant_total | currency }}</td>
             <td>
               <div class="d-flex">
                 <button class="btn btn-danger me-2" (click)="deleteReservation(reservation)">
                   <i class="fas fa-trash-alt"></i> Delete
                 </button>
-                <button class="btn btn-primary" >
+                <button class="btn btn-warning" data-bs-toggle="modal" (click)="selectReservation(reservation)" data-bs-target="#editReservation">
                   <i class="fas fa-edit"></i> Edit
                 </button>
+                
+                
               </div>
             </td>
           </tr>
@@ -587,44 +607,46 @@
       </section>
 
     </div>
-    <div class="modal fade" id="addProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    
+    <div class="modal fade" id="editReservation" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
               <div class="modal-content">
                   <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="exampleModalLabel">Create A Reservation</h1>
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Update A Reservation</h1>
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
         <div class="modal-body">
-            <form>
+            <form form (ngSubmit)="onSubmit()" >
 
                 <div class="mb-3">
                     <label for="userId" class="form-label">User ID</label>
-                    <input type="number" class="form-control" id="userId" #userId required>
+                    <input type="number" class="form-control" id="userId" [(ngModel)]="reservationData.user_id" name="user_id" #userId required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="chambreId" class="form-label">Room ID</label>
-                    <input type="number" class="form-control" id="chambreId" #chambreId required>
+                    <label for="chambre_id" class="form-label">Room ID</label>
+                    <input type="number" class="form-control" id="chambre_id" [(ngModel)]="reservationData.chambre_id" name="chambre_id" #chambre_id required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="dateDebut" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="dateDebut" #dateDebut required>
+                  <label for="date_debut" class="form-label">Start Date</label><label for="date_fin" class="form-label">{{ reservation.date_debut | date:'shortDate' }}</label>
+                  <input type="date" class="form-control" id="date_debut" [(ngModel)]="reservationData.date_debut" [value]="formattedDateDebut" name="date_debut" #date_debut required>
                 </div>
+                
+                <div class="mb-3">
+                  <label for="date_fin" class="form-label">End Date</label><label for="date_fin" class="form-label">{{ reservation.date_debut | date:'shortDate' }}</label>
+                  <input type="date" class="form-control" id="date_fin" [(ngModel)]="reservationData.date_fin" [value]="formattedDateFin" name="date_fin" #date_fin required>
+                </div>
+                
 
                 <div class="mb-3">
-                    <label for="dateFin" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="dateFin" #dateFin required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="montantTotal" class="form-label">Total Amount</label>
-                    <input type="number" class="form-control" id="montantTotal" #montantTotal required>
+                    <label for="montant_total" class="form-label">Total Amount</label>
+                    <input type="number" class="form-control" id="montant_total" [(ngModel)]="reservationData.montant_total" name="montant_total" #montant_total required>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary"> Add Reservation</button>
+                    <button type="submit" class="btn btn-primary"> Update Reservation</button>
                 </div>
             </form>
         

@@ -142,3 +142,44 @@
 .info a:hover {
     color: #ffcc00; /* Jaune */
 }
+
+
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  text-align: center;
+}
+
+.writing-effect {
+  font-size: 1.2em;
+  color: transparent;  /* Texte transparent pour appliquer le dégradé sur le texte */
+  font-family: 'Courier New', Courier, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  width: 0;
+  background: linear-gradient(90deg, #ffcc00, #ffffff); /* Dégradé de jaune à blanc */
+  -webkit-background-clip: text; /* Applique le dégradé au texte */
+  animation: typing 3s steps(30) 1s forwards, blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  50% {
+    border-color: transparent;
+  }
+  100% {
+    border-color: white;
+  }
+}

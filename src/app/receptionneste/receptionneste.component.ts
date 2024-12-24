@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Receptionist } from '../modele/Receptionist';
 import { ReceptionistService } from '../receptionist.service';
-
+import Swal from 'sweetalert2';
 declare var $: any;
 
 @Component({
@@ -90,9 +90,39 @@ export class ReceptionnesteComponent implements OnInit, AfterViewInit {
     receptionists: Receptionist[] = [];
 
 constructor(private receptionistService: ReceptionistService,private router: Router) {}
-
+userRole: string = '';
+email:string='';
+nom:string='';
+prenom:string='';
 ngOnInit(): void {
   this.loadReceptionist();
+
+  const user = localStorage.getItem('User');
+    if (!user) {
+      // Redirige vers la page de connexion si non connecté
+      window.location.href = '/login';
+    } else {
+      this.userRole = JSON.parse(user).role;
+      this.email = JSON.parse(user).email;
+      this.nom = JSON.parse(user).nom;
+      this.prenom = JSON.parse(user).prenom;
+      console.log(this.userRole);
+    }
+
+    if (localStorage.getItem('receptionistActionSuccess') === 'true') {
+      this.showAlert = true;
+      localStorage.removeItem('receptionistActionSuccess');  // Effacer après utilisation
+    }
+    
+    if (localStorage.getItem('receptionistActionError') === 'true') {
+      this.showError = true;
+      localStorage.removeItem('receptionistActionError');  // Effacer après utilisation
+    }
+    
+    if (localStorage.getItem('receptionistDeleted') === 'true') {
+      this.showWarningAlert = true; // Afficher l'alerte après le rechargement
+      localStorage.removeItem('receptionistDeleted'); // Supprimer l'élément après l'affichage de l'alerte
+    }
 }
 
 // Charger toutes les receptionists
@@ -100,6 +130,7 @@ loadReceptionist(): void {
   this.receptionistService.getAllReceptionists().subscribe(
     (data) => {
       this.receptionists = data;
+      console.log(this.receptionists)
     },
     (error) => {
       console.error('Erreur lors du chargement des chambres :', error);
@@ -112,16 +143,16 @@ loadReceptionist(): void {
 
 
 
-  receptioniste: Receptionist = new Receptionist(0, '', '', '', '', '', '', '','');  // Initialiser un objet User vide
+  receptioniste: Receptionist = new Receptionist('', '', '', '', '', '', '', '','');  // Initialiser un objet User vide
 
 
   // Méthode pour soumettre le formulaire
   // Méthode pour soumettre le formulaire
-  onSubmit(): void {
+  /*onSubmit(): void {
 
     console.log('Formulaire soumis', this.receptioniste);   // Ajouter un log pour vérifier les données envoyées
 
-    if (this.receptioniste.id) {
+    if (this.receptioniste._id) {
       // Si l'ID existe, c'est une modification
       this.receptionistService.updateReceptionist(this.receptioniste).subscribe(
         (response) => {
@@ -146,7 +177,7 @@ loadReceptionist(): void {
     }
   
   }
-  
+  */
 
   selectReceptionist(receptioniste: Receptionist) {
     // Affecter les informations du client sélectionné à l'objet client
@@ -155,8 +186,8 @@ loadReceptionist(): void {
   }
   
     // Méthode pour récupérer l'utilisateur existant
-    getReceptionistById(id: number): void {
-      this.receptionistService.getReceptionistById(id).subscribe(
+    getReceptionistById(_id: string): void {
+      this.receptionistService.getReceptionistById(_id).subscribe(
         (response) => {
           this.receptioniste = response;
         },
@@ -170,23 +201,6 @@ loadReceptionist(): void {
 
 
 
-    deleteReceptionist(receptionist: any): void {
-      if (confirm('Êtes-vous sûr de vouloir supprimer ce chambre?')) {
-        this.receptionistService.deleteReceptionist(receptionist.id).subscribe(
-          (response) => {
-            console.log('Client supprimé avec succès!', response);
-            // Mettre à jour la liste des Receptionist
-            this.loadReceptionist(); // Recharger les clients après suppression
-          },
-          (error) => {
-            console.error('Erreur lors de la suppression du chambre :', error);
-          }
-        );
-      }
-    }
-
-
-
   reloadPage(route: string) {
     this.router.navigateByUrl(route).then(() => {
       window.location.reload(); // Recharge la page
@@ -195,10 +209,144 @@ loadReceptionist(): void {
 
 
 
-
       resetReceptionist(): void {
-        this.receptioniste = new Receptionist(0, '', '', '', '', '', '', '',""); // Réinitialiser l'objet client
+        this.receptioniste = new Receptionist('', '', '', '', '', '', '',""); // Réinitialiser l'objet client
         console.log('Client réinitialisé pour l\'ajout');
       }
   
+
+
+
+
+
+      
+            showAlert = false;  // Variable pour afficher l'alerte de succès
+            showError = false;  // Variable pour afficher l'alerte d'erreur
+          onSubmit(): void {
+            console.log('onSubmit appelé');
+                const action = this.receptioniste._id ? 'update' : 'add';
+                const confirmationText = `Are you sure you want to ${action} this receptionist?`;
+            
+                Swal.fire({
+                  title: confirmationText,
+                  text: "This action will be applied immediately.",
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#3085d6',
+                  cancelButtonColor: '#d33',
+                  confirmButtonText: `Yes, ${action}!`,
+                  cancelButtonText: 'Cancel',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    if (this.receptioniste._id) {
+                      // Si l'ID existe, c'est une mise à jour
+                      this.receptionistService.updateReceptionist(this.receptioniste).subscribe(
+                        (response) => {
+                          // Stocker l'état de l'alerte dans localStorage avant le rechargement
+                          localStorage.setItem('receptionistActionSuccess', 'true');
+                          localStorage.setItem('receptionistActionError', 'false');
+                          setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+                        },
+                        (error) => {
+                          // Stocker l'état de l'alerte d'erreur dans localStorage
+                          localStorage.setItem('receptionistActionSuccess', 'false');
+                          localStorage.setItem('receptionistActionError', 'true');
+                          setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+                        }
+                      );
+                    } else {
+                      // Sinon, c'est un ajout
+                      this.receptionistService.addReceptionist(this.receptioniste).subscribe(
+                        (response) => {
+                          // Stocker l'état de l'alerte dans localStorage avant le rechargement
+                          localStorage.setItem('receptionistActionSuccess', 'true');
+                          localStorage.setItem('receptionistActionError', 'false');
+                          setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+                        },
+                        (error) => {
+                          // Stocker l'état de l'alerte d'erreur dans localStorage
+                          localStorage.setItem('receptionistActionSuccess', 'false');
+                          localStorage.setItem('receptionistActionError', 'true');
+                          setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+                        }
+                      );
+                    }
+                  }
+                });
+              }
+          
+              // Fermer l'alerte de succès
+            closeAlert(): void {
+              this.showAlert = false;
+            }
+      
+      
+      
+      
+      
+      
+            showWarningAlert = false;
+                  
+                    deleteReceptionist(receptionist: any): void {
+                      console.log('receptionist ID to delete:', receptionist._id);
+                    
+                      Swal.fire({
+                        title: 'Are you sure you want to delete this receptionist?',
+                        text: 'This action is irreversible!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete!',
+                      }).then((result) => {
+                        if (result.isConfirmed) {
+                          // Suppression de la chambre
+                          this.receptionistService.deleteReceptionist(receptionist._id).subscribe(
+                            (response) => {
+                              // Affichage d'un message de succès après suppression
+                              Swal.fire(
+                                'Deleted!',
+                                `The receptionist ${receptionist._id} has been successfully deleted.`,
+                                'success'
+                              ).then(() => {
+                                // Enregistrer dans localStorage que la suppression a eu lieu
+                                localStorage.setItem('receptionistDeleted', 'true');
+                                setTimeout(() => window.location.reload(), 1000);  // Recharger la page après suppression
+                              });
+                            },
+                            (error) => {
+                              // Gestion des erreurs
+                              console.error('Error while deleting the receptionist:', error);
+                              Swal.fire(
+                                'Error!',
+                                'An error occurred while deleting the receptionist.',
+                                'error'
+                              );
+                            }
+                          );
+                        }
+                      });
+                    }
+
+
+
+
+                    logout() {
+                      // Supprimer les informations de l'utilisateur du localStorage
+                      localStorage.removeItem('User');
+                    
+                      // Affichage d'un message de succès
+                      Swal.fire(
+                        'Succès!',
+                        'Vous êtes déconnecté avec succès!',
+                        'success'
+                      ).then(() => {
+                        // Rediriger l'utilisateur vers la page de connexion
+                        this.router.navigate(['/login']);
+                      });
+                    
+                    }
+
+
+                    
 }

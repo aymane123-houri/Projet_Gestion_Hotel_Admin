@@ -8,14 +8,16 @@ import { ChambreComponent } from './chambre/chambre.component';
 import { ClientComponent } from './client/client.component';
 import { ReservationComponent } from './reservation/reservation.component';
 import { LoginComponent } from './login/login.component';
+import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet,HttpClientModule,CommonModule,FormsModule,ReceptionnesteComponent,ChambreComponent,ClientComponent,ReservationComponent,LoginComponent],
+  imports: [RouterOutlet,HttpClientModule,CommonModule,FormsModule,ReceptionnesteComponent,ChambreComponent,ClientComponent,ReservationComponent,LoginComponent, HttpClientModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = 'Gestion-Hotel-Admin';
+  
 }

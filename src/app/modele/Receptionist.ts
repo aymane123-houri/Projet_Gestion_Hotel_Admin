@@ -1,5 +1,5 @@
 export class Receptionist {
-    id: number;
+    _id?: string;
     nom: string;
     prenom: string;
     email: string;
@@ -10,7 +10,7 @@ export class Receptionist {
     role:string;
   
     constructor(
-      id: number,
+      
       nom: string,
       prenom: string,
       email: string,
@@ -18,9 +18,10 @@ export class Receptionist {
       adresse: string,
       cni: string,
       password: string,
-      role:string
+      role:string,
+      _id?: string,
     ) {
-      this.id = id;
+     
       this.nom = nom;
       this.prenom = prenom;
       this.email = email;
@@ -29,6 +30,9 @@ export class Receptionist {
       this.cni = cni;
       this.password = password;
       this.role = role;
+      if (_id !== undefined) {
+        this._id = _id;
+      }
     }
   }
   

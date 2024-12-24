@@ -7,6 +7,7 @@ import { ReservationService } from '../reservation.service';
 import { Reservation } from '../modele/Reservation';
 import { Chambre } from '../modele/Chambre';
 import { HttpClientModule } from '@angular/common/http';
+import { ReservationData } from '../modele/ReservationData';
 
 declare var $: any;  // Déclare jQuery pour l'utiliser dans votre composant
 
@@ -19,14 +20,21 @@ declare var $: any;  // Déclare jQuery pour l'utiliser dans votre composant
 })
 export class ReservationComponent implements OnInit, AfterViewInit {
   
-
+  showAlert = false;  // Variable pour afficher l'alerte de succès
+  showError = false;  // Variable pour afficher l'alerte d'erreur
+  showWarningAlert = false;
   constructor(private router: Router,private reservationService: ReservationService) {}
 
   reservation: Reservation = new Reservation(0, 0, 0, new Date(), new Date(), 0, 1, 0,0); // Valeurs par défaut
+reservationDataa: ReservationData = new ReservationData(0, 0, new Date(), new Date(), 0);  // Valeurs par défaut
+chambre: Chambre = new Chambre(0, 0, 0, 0, '', '',0,0,'', false); 
   chambresDisponibles: Chambre[] = [];
   toutesLesChambres: Chambre[] = []; // Toutes les chambres disponibles
   errorMessage: string = '';
-
+  userRole: string = '';
+  email:string='';
+nom:string='';
+prenom:string='';
   ngOnInit(): void {
     this.loadReservation()
     // Charger toutes les chambres au début
@@ -41,6 +49,32 @@ export class ReservationComponent implements OnInit, AfterViewInit {
       }
     );
     
+
+    const user = localStorage.getItem('User');
+    if (!user) {
+      // Redirige vers la page de connexion si non connecté
+      window.location.href = '/login';
+    } else {
+      this.userRole = JSON.parse(user).role;
+      this.email = JSON.parse(user).email;
+      this.nom = JSON.parse(user).nom;
+      this.prenom = JSON.parse(user).prenom;
+      console.log(this.userRole);
+    }
+    if (localStorage.getItem('roomActionSuccess') === 'true') {
+      this.showAlert = true;
+      localStorage.removeItem('roomActionSuccess');  // Effacer après utilisation
+    }
+    
+    if (localStorage.getItem('roomActionError') === 'true') {
+      this.showError = true;
+      localStorage.removeItem('roomActionError');  // Effacer après utilisation
+    }
+    
+    if (localStorage.getItem('roomDeleted') === 'true') {
+      this.showWarningAlert = true; // Afficher l'alerte après le rechargement
+      localStorage.removeItem('roomDeleted'); // Supprimer l'élément après l'affichage de l'alerte
+    }
   }
 
 ngAfterViewInit(): void {
@@ -146,12 +180,14 @@ ngAfterViewInit(): void {
     });
   }
   
-
-  selectReservation(reservation: any) {
-    // Implémentation pour sélectionner une réservation à modifier
-    alert('Réservation sélectionnée pour modification : ' + reservation.id);
+  selectReservation(reservationData: ReservationData) {
+    this.reservationData = {
+      ...reservationData,
+      date_debut: new Date(reservationData.date_debut),
+      date_fin: new Date(reservationData.date_fin),
+    };
+    console.log('Données sélectionnées pour modification :', this.reservationData);
   }
-
 
 
   reloadPage(route: string) {
@@ -193,7 +229,7 @@ ngAfterViewInit(): void {
   }
   
 
-  reservations: Reservation[] = [];
+  reservations: ReservationData[] = [];
   loadReservation(): void {
     this.reservationService.getAllReservation().subscribe(
       (data) => {
@@ -203,6 +239,7 @@ ngAfterViewInit(): void {
         console.error('Erreur lors du chargement des chambres :', error);
       }
     );
+    
   }
   
 
@@ -243,4 +280,96 @@ date_debut!: string;  // Date de début
 date_fin!: string;    // Date de fin
 adulte!: number;      // Nombre d'adultes
 enfant!: number;      // Nombre d'enfants
+
+
+
+
+
+
+logout() {
+  // Supprimer les informations de l'utilisateur du localStorage
+  localStorage.removeItem('User');
+
+  // Affichage d'un message de succès
+  Swal.fire(
+    'Succès!',
+    'Vous êtes déconnecté avec succès!',
+    'success'
+  ).then(() => {
+    // Rediriger l'utilisateur vers la page de connexion
+    this.router.navigate(['/login']);
+  });
+
+}
+
+
+
+get formattedDateDebut(): string {
+  return this.reservationData.date_debut ? this.reservationData.date_debut.toISOString().split('T')[0] : '';
+}
+
+get formattedDateFin(): string {
+  return this.reservationData.date_fin ? this.reservationData.date_fin.toISOString().split('T')[0] : '';
+}
+
+reservationData: ReservationData = new ReservationData( 0, 0, new Date(), new Date(), 0,0); 
+
+    onSubmit(): void {
+      const action = this.reservation.id ? 'update' : 'add';
+      const confirmationText = `Are you sure you want to ${action} this room?`;
+  
+      Swal.fire({
+        title: confirmationText,
+        text: "This action will be applied immediately.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${action}!`,
+        cancelButtonText: 'Cancel',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (this.reservation.id) {
+            // Si l'ID existe, c'est une mise à jour
+            this.reservationService.updateReservation(this.reservation).subscribe(
+              (response) => {
+                // Stocker l'état de l'alerte dans localStorage avant le rechargement
+                localStorage.setItem('roomActionSuccess', 'true');
+                localStorage.setItem('roomActionError', 'false');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              },
+              (error) => {
+                // Stocker l'état de l'alerte d'erreur dans localStorage
+                localStorage.setItem('roomActionSuccess', 'false');
+                localStorage.setItem('roomActionError', 'true');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              }
+            );
+          } else {
+            // Sinon, c'est un ajout
+            this.reservationService.addReservation(this.reservation).subscribe(
+              (response) => {
+                // Stocker l'état de l'alerte dans localStorage avant le rechargement
+                localStorage.setItem('roomActionSuccess', 'true');
+                localStorage.setItem('roomActionError', 'false');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              },
+              (error) => {
+                // Stocker l'état de l'alerte d'erreur dans localStorage
+                localStorage.setItem('roomActionSuccess', 'false');
+                localStorage.setItem('roomActionError', 'true');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              }
+            );
+          }
+        }
+      });
+    }
+
+    // Fermer l'alerte de succès
+  closeAlert(): void {
+    this.showAlert = false;
+  }
+
+
 }

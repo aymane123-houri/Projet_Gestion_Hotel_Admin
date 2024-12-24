@@ -105,17 +105,27 @@
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <a href="#" class="brand-link">
-            <img src="../../assets/images/logoHotel.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-            <span class="brand-text font-weight-light">Royal Resort</span>
+            <img src="../../assets/images/logoHotel.png" alt="logoHotel" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 10px;">      
+            <span class="brand-text font-weight-light"> Royal Resort</span>
         </a>
 
         <div class="sidebar">
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image">
-                    <img src="../../assets/images/logoSignin.jpg" class="img-circle elevation-2" alt="User">
+            <br>
+            <div class="user-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 180px; text-align: center;">
+                <h4 [@writingEffect] class="writing-effect">
+                    Hello
+                </h4>
+                <h4 [@writingEffect] class="writing-effect">
+                    {{nom}} {{prenom}}
+                </h4>
+            </div>
+            
+            <br>
+            <div class="user-panel" style="display: flex; align-items: center; gap: 10px; background-color: transparent;">
+                <div class="image" style="flex: 0 0 auto; text-align: center;">
+                    <img src="../../assets/images/iconesAdmin.png" alt="User" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                 </div>
-                <div class="info">
-                    <a href="/admin" class="d-block">User Name</a>
+                <div style="flex: 1; text-align: left;"><p style="margin: 0; font-size: 1em; color: white; font-family: Arial, sans-serif;">{{ email }}</p>
                 </div>
             </div>
             <nav class="mt-2">
@@ -126,32 +136,32 @@
                             <p>Dashboard</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/chambre" class="nav-link" (click)="reloadPage('/chambre')">
                             <i class="fas fa-bed nav-icon"></i>
                             <p> Rooms</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/client" routerLinkActive="active" class="nav-link">
                             <i class="fas fa-users nav-icon"></i>
                             <p> Clients</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" *ngIf="userRole === 'Admin'">
                         <a routerLink="/reception" routerLinkActive="active" class="nav-link" (click)="reloadPage('/reception')">
                             <i class="fas fa-user-tie nav-icon"></i>
                             <p> Receptionists</p>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" >
                         <a routerLink="/reservation" class="nav-link" (click)="reloadPage('/reservation')">
                             <i class="fas fa-calendar-check nav-icon"></i>
                             <p> Reservations</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a (click)="logout()" class="nav-link">
                             <i class="nav-icon fas fa-sign-out-alt"></i>
                             <p>Logout</p>
                         </a>
@@ -192,6 +202,16 @@
     <div class="card-header">
       <h3 class="card-title">Clients</h3>
     </div>
+                <!-- Alert success -->
+<div *ngIf="showAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success!</strong> The client has been successfully processed.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="closeAlert()"></button>
+  </div>
+  <!-- Alerte de succès après la suppression -->
+<div *ngIf="showWarningAlert" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Success!</strong> The client has been successfully deleted.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" (click)="showWarningAlert = false"></button>
+  </div>
     <div class="card-body">
       <table id="example1" class="table table-bordered table-striped">
         <thead>
@@ -200,20 +220,18 @@
             <th>Last Name</th>
             <th>First Name</th>
             <th>Email</th>
-            <th>Password</th>
             <th>Tel</th>
             <th>CNI</th>
             <th>Address</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody *ngIf="Clients && Clients.length > 0">
           <tr *ngFor="let client of Clients">
             <td>{{ client.id }}</td>
             <td>{{ client.nom }}</td>
             <td>{{ client.prenom }}</td>
             <td>{{ client.email}}</td>
-            <td>{{ client.password}}</td>
             <td>{{ client.telephone}}</td>
             <td>{{ client.cni}}</td>
             <td>{{ client.adresse}}</td>

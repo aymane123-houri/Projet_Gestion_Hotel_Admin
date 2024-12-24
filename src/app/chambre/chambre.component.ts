@@ -23,27 +23,46 @@ chambres: Chambre[] = [];
 numberOfChambre: number = 0;
 
 constructor(private chambreService: ChambreService,private router: Router) {}
-
+userRole: string = '';
+email:string='';
+nom:string='';
+prenom:string='';
 ngOnInit(): void {
- // this.loadChambres();
- this.chambreService.getAllChambres().subscribe(
-  (data) => {
-    this.chambres = data; // Recevoir la liste des chambres
-    console.log(this.chambres); // Pour voir les données reçues
-  },
-  (error) => {
-    console.error('Erreur lors de la récupération des chambres', error);
-  }
-);
+  
+ this.loadChambres();
 
-this.chambreService.getAllChambres().subscribe(chambres => {
-  this.chambres = chambres;
-  this.numberOfChambre = this.chambres.length;
-});
+
+
+const user = localStorage.getItem('User');
+    if (!user) {
+      // Redirige vers la page de connexion si non connecté
+      window.location.href = '/login';
+    } else {
+      this.userRole = JSON.parse(user).role;
+      this.email = JSON.parse(user).email;
+      this.nom = JSON.parse(user).nom;
+      this.prenom = JSON.parse(user).prenom;
+      console.log(this.userRole);
+    }
+
+    if (localStorage.getItem('roomActionSuccess') === 'true') {
+      this.showAlert = true;
+      localStorage.removeItem('roomActionSuccess');  // Effacer après utilisation
+    }
+    
+    if (localStorage.getItem('roomActionError') === 'true') {
+      this.showError = true;
+      localStorage.removeItem('roomActionError');  // Effacer après utilisation
+    }
+    
+    if (localStorage.getItem('roomDeleted') === 'true') {
+      this.showWarningAlert = true; // Afficher l'alerte après le rechargement
+      localStorage.removeItem('roomDeleted'); // Supprimer l'élément après l'affichage de l'alerte
+    }
 }
 
 
-ngAfterViewInit(): void {
+/*ngAfterViewInit(): void {
   const table = $('#example1').DataTable({
     paging: true,  // Activer la pagination
     lengthChange: true,  // Permet à l'utilisateur de changer le nombre d'éléments par page
@@ -80,12 +99,51 @@ ngAfterViewInit(): void {
       }
     ]
   });
-}
+  
+}*/
 // Charger toutes les chambres
+ngAfterViewInit(): void {
+  // Initialisation de DataTables après que les données soient chargées
+  $(document).ready(() => {
+    this.initializeDataTable();  // Appel de la méthode d'initialisation
+  });
+}
+
+initializeDataTable(): void {
+  $('#example1').DataTable({
+    paging: true,  // Activer la pagination
+    lengthChange: true,  // Permet à l'utilisateur de changer le nombre d'éléments par page
+    pageLength: 3,  // Nombre d'éléments par page par défaut
+    searching: true,  // Activer la fonctionnalité de recherche
+    ordering: true,  // Activer le tri
+    info: true,  // Afficher le texte d'information en bas de la table
+    autoWidth: false,
+    dom: '<"row"<"col-sm-6 text-start"f><"col-sm-6 text-end"B>>' +
+         '<"row"<"col-sm-12"tr>>' +
+         '<"row"<"col-sm-5 text-start"i><"col-sm-7 text-end"p>>',
+    buttons: [
+      { extend: 'copy', className: 'btn btn-dark' },
+      { extend: 'csv', className: 'btn btn-dark' },
+      { extend: 'excel', className: 'btn btn-dark' },
+      { extend: 'pdf', className: 'btn btn-dark' },
+      { extend: 'print', className: 'btn btn-dark' }
+    ]
+  });
+}
+
+reloadDataTable(): void {
+  // Si DataTables est déjà initialisé, le réinitialiser
+  if ($.fn.dataTable.isDataTable('#example1')) {
+    $('#example1').DataTable().clear().destroy();
+  }
+  this.initializeDataTable();  // Réinitialiser DataTables
+}
+
 loadChambres(): void {
   this.chambreService.getAllChambres().subscribe(
     (data) => {
       this.chambres = data;
+      console.log(this.chambres)
     },
     (error) => {
       console.error('Erreur lors du chargement des chambres :', error);
@@ -93,12 +151,13 @@ loadChambres(): void {
   );
 }
 
+
   
  
   
   
   // Charger toutes les chambres
-  loadChamnre(): void {
+  loadChambre(): void {
     this.chambreService.getAllChambres().subscribe(
       (data) => {
         this.chambres = data;
@@ -115,9 +174,11 @@ loadChambres(): void {
 
   chambre: Chambre = new Chambre(0, 0, 0, 0, '', '',0,0,'', false);  // Initialiser un objet User vide
 
+  showAlert = false;  // Variable pour afficher l'alerte de succès
+  showError = false;  // Variable pour afficher l'alerte d'erreur
 
   // Méthode pour soumettre le formulaire
-  onSubmit(): void {
+  /*onSubmit(): void {
     if (this.chambre.id) {
       // Si l'ID existe, c'est une modification
       this.chambreService.updateChambre(this.chambre).subscribe(
@@ -142,8 +203,70 @@ loadChambres(): void {
       );
     }
   
-  }
+  }*/
   
+
+
+    onSubmit(): void {
+      const action = this.chambre.id ? 'update' : 'add';
+      const confirmationText = `Are you sure you want to ${action} this room?`;
+  
+      Swal.fire({
+        title: confirmationText,
+        text: "This action will be applied immediately.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${action}!`,
+        cancelButtonText: 'Cancel',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (this.chambre.id) {
+            // Si l'ID existe, c'est une mise à jour
+            this.chambreService.updateChambre(this.chambre).subscribe(
+              (response) => {
+                // Stocker l'état de l'alerte dans localStorage avant le rechargement
+                localStorage.setItem('roomActionSuccess', 'true');
+                localStorage.setItem('roomActionError', 'false');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              },
+              (error) => {
+                // Stocker l'état de l'alerte d'erreur dans localStorage
+                localStorage.setItem('roomActionSuccess', 'false');
+                localStorage.setItem('roomActionError', 'true');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              }
+            );
+          } else {
+            // Sinon, c'est un ajout
+            this.chambreService.addChambre(this.chambre).subscribe(
+              (response) => {
+                // Stocker l'état de l'alerte dans localStorage avant le rechargement
+                localStorage.setItem('roomActionSuccess', 'true');
+                localStorage.setItem('roomActionError', 'false');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              },
+              (error) => {
+                // Stocker l'état de l'alerte d'erreur dans localStorage
+                localStorage.setItem('roomActionSuccess', 'false');
+                localStorage.setItem('roomActionError', 'true');
+                setTimeout(() => window.location.reload(), 1000);  // Recharger après un délai
+              }
+            );
+          }
+        }
+      });
+    }
+
+    // Fermer l'alerte de succès
+  closeAlert(): void {
+    this.showAlert = false;
+  }
+
+
+
+
 
   selectChambre(chambre: Chambre) {
     // Affecter les informations du client sélectionné à l'objet client
@@ -182,8 +305,8 @@ loadChambres(): void {
     }*/
 
 
-
-      deleteChambre(chambre: any): void {
+//bien travaille
+     /* deleteChambre(chambre: any): void {
         console.log('Chambre ID to delete:', chambre.id);
       
         Swal.fire({
@@ -218,8 +341,53 @@ loadChambres(): void {
             );
           }
         });
-      }
+      }*/
       
+        showWarningAlert = false;
+      
+        deleteChambre(chambre: any): void {
+          console.log('Chambre ID to delete:', chambre.id);
+        
+          Swal.fire({
+            title: 'Are you sure you want to delete this room?',
+            text: 'This action is irreversible!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete!',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Suppression de la chambre
+              this.chambreService.deleteChambre(chambre.id).subscribe(
+                (response) => {
+                  // Affichage d'un message de succès après suppression
+                  Swal.fire(
+                    'Deleted!',
+                    `The room ${chambre.id} has been successfully deleted.`,
+                    'success'
+                  ).then(() => {
+                    // Enregistrer dans localStorage que la suppression a eu lieu
+                    localStorage.setItem('roomDeleted', 'true');
+                    setTimeout(() => window.location.reload(), 1000);  // Recharger la page après suppression
+                  });
+                },
+                (error) => {
+                  // Gestion des erreurs
+                  console.error('Error while deleting the room:', error);
+                  Swal.fire(
+                    'Error!',
+                    'An error occurred while deleting the room.',
+                    'error'
+                  );
+                }
+              );
+            }
+          });
+        }
+            
+
+
 
 
   reloadPage(route: string) {
@@ -281,6 +449,23 @@ onFileSelected(event: any) {
     this.chambreToDelete = chambre;
     // Afficher la modal de confirmation
     $('#confirmDeleteChambreModal').modal('show');
+  }
+
+
+  logout() {
+    // Supprimer les informations de l'utilisateur du localStorage
+    localStorage.removeItem('User');
+  
+    // Affichage d'un message de succès
+    Swal.fire(
+      'Succès!',
+      'Vous êtes déconnecté avec succès!',
+      'success'
+    ).then(() => {
+      // Rediriger l'utilisateur vers la page de connexion
+      this.router.navigate(['/login']);
+    });
+  
   }
 }
 

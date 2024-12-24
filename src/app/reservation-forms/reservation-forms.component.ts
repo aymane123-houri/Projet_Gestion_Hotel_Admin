@@ -11,6 +11,7 @@ import { Chambre } from '../modele/Chambre';
 import { ClientService } from '../client.service';
 import { Client } from '../modele/Client';
 import { ReservationData } from '../modele/ReservationData';
+import { catchError, map, Observable, of } from 'rxjs';
 
 
 declare var $: any;  
@@ -25,7 +26,8 @@ declare var $: any;
   styleUrl: './reservation-forms.component.css'
 })
 export class ReservationFormsComponent  implements OnInit, AfterViewInit {
-  reservation: Reservation = new Reservation(0, 0, 0, new Date(), new Date(), 0, 1, 0,0); // Valeurs par défaut
+reservation: Reservation = new Reservation(0, 0, 0, new Date(), new Date(), 0, 1, 0,0);
+reservationDataa: ReservationData = new ReservationData(0, 0, new Date(), new Date(), 0);  // Valeurs par défaut
 errorMessage: string = '';
 chambreId: number = 0;
 chambre: Chambre = new Chambre(0, 0, 0, 0, '', '',0,0,'', false); 
@@ -34,8 +36,8 @@ chambre: Chambre = new Chambre(0, 0, 0, 0, '', '',0,0,'', false);
 
         // Initialisation du formulaire utilisateur
         this.userForm = this.fb.group({
-          firstName: ['', Validators.required],
-          lastName: ['', Validators.required],
+          prenom: ['', Validators.required],
+          nom: ['', Validators.required],
           cni: ['', Validators.required],
           email: ['', [Validators.required, Validators.email]],
           telephone: ['', Validators.required],
@@ -49,7 +51,10 @@ chambre: Chambre = new Chambre(0, 0, 0, 0, '', '',0,0,'', false);
   }
 
 
-
+  userRole: string = '';
+  email:string='';
+nom:string='';
+prenom:string='';
   ngOnInit(): void {
     this.loadReservation()
     // Charger toutes les chambres au début
@@ -73,6 +78,17 @@ chambre: Chambre = new Chambre(0, 0, 0, 0, '', '',0,0,'', false);
 
   console.log('Formulaire initialisé');
   
+  const user = localStorage.getItem('User');
+    if (!user) {
+      // Redirige vers la page de connexion si non connecté
+      window.location.href = '/login';
+    } else {
+      this.userRole = JSON.parse(user).role;
+      this.email = JSON.parse(user).email;
+      this.nom = JSON.parse(user).nom;
+      this.prenom = JSON.parse(user).prenom;
+      console.log(this.userRole);
+    }
     
   }
 
@@ -118,7 +134,7 @@ ngAfterViewInit(): void {
 
 
 
-  deleteReservation(reservation: any): void {
+  /*deleteReservation(reservation: any): void {
     console.log('Reservation ID to delete:', reservation.id);
   
     Swal.fire({
@@ -154,12 +170,40 @@ ngAfterViewInit(): void {
       }
     });
   }
-  
+  */
 
-  selectReservation(reservation: any) {
+  /*selectReservation(reservationData: any) {
     // Implémentation pour sélectionner une réservation à modifier
-    alert('Réservation sélectionnée pour modification : ' + reservation.id);
-  }
+    alert('Réservation sélectionnée pour modification : ' + this.reservationData.id);
+  }*/
+  /*selectReservation(reservation: ReservationData) {
+    // Copier les données de la réservation sélectionnée dans `reservationData`
+    this.reservationData = { ...reservation };
+    console.log('Réservation sélectionnée pour modification :', this.reservationData);
+  }*/
+
+    get formattedDateDebut(): string {
+      return this.reservationData.date_debut ? this.reservationData.date_debut.toISOString().split('T')[0] : '';
+    }
+  
+    get formattedDateFin(): string {
+      return this.reservationData.date_fin ? this.reservationData.date_fin.toISOString().split('T')[0] : '';
+    }
+  
+    selectReservation(reservationData: ReservationData) {
+      this.reservationData = {
+        ...reservationData,
+        date_debut: new Date(reservationData.date_debut),
+        date_fin: new Date(reservationData.date_fin),
+      };
+      console.log('Données sélectionnées pour modification :', this.reservationData);
+    }
+
+
+    
+
+    
+  
 
 
 
@@ -170,7 +214,7 @@ ngAfterViewInit(): void {
   }
 
 
-  reservations: Reservation[] = [];
+  reservations: ReservationData[] = [];
   loadReservation(): void {
     this.reservationService.getAllReservation().subscribe(
       (data) => {
@@ -265,8 +309,11 @@ onSubmitUserForm() {
 
     this.clientService.addClient(clientData).subscribe(
       (savedClient: Client) => {
+        this.reservation.user_id = savedClient.id;  // Sauvegarder l'ID utilisateur
+        console.log('ID utilisateur enregistré:', savedClient.id);
         this.reservation.user_id = savedClient.id;
         this.showBookingForm = true;
+        
       },
       (error) => {
         console.error('Erreur lors de l\'enregistrement du client :', error);
@@ -309,15 +356,16 @@ onSubmitBookingForm() {
   } else {
     alert('Veuillez remplir tous les champs du formulaire de reservation.');
   }
-}
+}*/
 
 
-*/
-reservationData: ReservationData = new ReservationData(0, 0, 0, new Date(), new Date(), 0);  
+
+/*reservationData: ReservationData = new ReservationData( 0, 0, new Date(), new Date(), 0);  
+methode qui travaille correctement
 onSubmitBookingForm() {
-  console.log('le methode onSubmitBookingForm est appelé');
+  console.log('La méthode onSubmitBookingForm est appelée');
   if (this.bookingForm.valid) {
-    const { date_debut, date_fin } = this.reservation;
+    const { date_debut, date_fin } = this.bookingForm.value;  // Récupérer les dates depuis le formulaire
     const prixChambre = this.chambre.prix;
 
     // Vérification si la date de début est avant la date de fin
@@ -327,29 +375,20 @@ onSubmitBookingForm() {
     }
 
     // Formater les dates au format 'yyyy-MM-dd' puis les convertir en objets Date
-    const formattedDateDebut = new Date(formatDate(this.reservation.date_debut, 'yyyy-MM-dd', 'en-US'));
-    const formattedDateFin = new Date(formatDate(this.reservation.date_fin, 'yyyy-MM-dd', 'en-US'));
+    const formattedDateDebut = new Date(formatDate(date_debut, 'yyyy-MM-dd', 'en-US'));
+    const formattedDateFin = new Date(formatDate(date_fin, 'yyyy-MM-dd', 'en-US'));
 
     const diffEnMillisecondes = formattedDateFin.getTime() - formattedDateDebut.getTime();
     const diffEnJours = diffEnMillisecondes / (1000 * 3600 * 24); 
     const montantTotal = prixChambre * diffEnJours;
 
-   /* const reservationData: ReservationData = new ReservationData(
-      0, // Id par défaut, sera généré par la base de données
-      1, // user_id, à adapter en fonction de l'utilisateur actuel
+    const reservationData: ReservationData = new ReservationData(
+       // Id par défaut, sera généré par la base de données
+       this.reservation.user_id, // user_id, à adapter en fonction de l'utilisateur actuel
       this.chambreId, // chambre_id, à adapter en fonction de la chambre sélectionnée
       formattedDateDebut, // date_debut
       formattedDateFin,   // date_fin
       montantTotal       // montant_total
-    );*/
-
-    const reservationData: ReservationData = new ReservationData(
-      0, // Id par défaut, sera généré par la base de données
-      1, // user_id, à adapter en fonction de l'utilisateur actuel
-      3, // chambre_id, à adapter en fonction de la chambre sélectionnée
-      new Date(), // date_debut
-      new Date(),   // date_fin
-      1000       // montant_total
     );
     console.log('Reservation data:', reservationData);
     this.reservationService.addReservation(reservationData).subscribe(
@@ -372,12 +411,275 @@ onSubmitBookingForm() {
       }
     );
   }
+}*/
+reservationData: ReservationData = new ReservationData( 0, 0, new Date(), new Date(), 0,0); 
+onSubmitBookingForm() {
+  console.log('La méthode onSubmitBookingForm est appelée');
+  if (this.bookingForm.valid) {
+    const { date_debut, date_fin } = this.bookingForm.value;  // Récupérer les dates depuis le formulaire
+    const prixChambre = this.chambre.prix;
+
+    // Vérification si la date de début est avant la date de fin
+    if (new Date(date_debut) > new Date(date_fin)) {
+      alert("La date de début ne peut pas être après la date de fin.");
+      return;
+    }
+
+    // Formater les dates au format 'yyyy-MM-dd' puis les convertir en objets Date
+    const formattedDateDebut = new Date(formatDate(date_debut, 'yyyy-MM-dd', 'en-US'));
+    const formattedDateFin = new Date(formatDate(date_fin, 'yyyy-MM-dd', 'en-US'));
+
+    const diffEnMillisecondes = formattedDateFin.getTime() - formattedDateDebut.getTime();
+    const diffEnJours = diffEnMillisecondes / (1000 * 3600 * 24);
+    const montantTotal = prixChambre * diffEnJours;
+
+    const reservationData: ReservationData = new ReservationData(
+       // Id par défaut, sera généré par la base de données
+      this.reservation.user_id, // user_id, à adapter en fonction de l'utilisateur actuel
+      this.chambreId, // chambre_id, à adapter en fonction de la chambre sélectionnée
+      formattedDateDebut, // date_debut
+      formattedDateFin,   // date_fin
+      montantTotal,       // montant_total
+      undefined
+    );
+
+    console.log('Reservation data:', reservationData);
+
+    // Appel pour ajouter la réservation
+    this.reservationService.addReservation(reservationData).subscribe(
+      (savedReservation) => {
+        Swal.fire(
+          'Succès!',
+          'La réservation a été créée avec succès.',
+          'success'
+        ).then(() => {
+          if (savedReservation.id !== undefined) {
+            this.reservationService.sendEmail(savedReservation.id).subscribe(
+              () => {
+                console.log(`Email envoyé avec succès pour la réservation ${savedReservation.id}`);
+              },
+              (error) => {
+                console.error('Erreur lors de l\'envoi de l\'email:', error);
+              }
+            );
+          } else {
+            console.error('L\'ID de la réservation est undefined.');
+          }
+    
+          this.router.navigate(['/reservations']);
+        });
+      },
+      (error) => {
+        Swal.fire(
+          'Erreur!',
+          'Une erreur est survenue lors de l\'enregistrement de la réservation. Veuillez réessayer plus tard.',
+          'error'
+        );
+        console.error('Erreur lors de l\'enregistrement de la réservation :', error);
+      }
+    );
+    
+  }
+}
+
+
+chambrePrice: number = 0; 
+getChambrePrice(chambreId: number): Observable<number> {
+  return this.chambreService.getChambreById(chambreId).pipe(
+    map((chambre) => {
+      if (chambre) { // Vérifier si chambre n'est pas undefined
+        const prix = chambre.prix; // Accéder au prix si chambre est défini
+        console.log('Prix de la chambre:', prix);
+        return prix;
+      } else {
+        console.error('Chambre non trouvée');
+        return 0; // Retourner 0 si chambre est undefined
+      }
+    }),
+    catchError((error) => {
+      console.error('Erreur lors de la récupération du prix de la chambre:', error);
+      return of(0); // Retourner 0 en cas d'erreur
+    })
+  );
+}
+
+/*
+onSubmit() {
+  console.log('Formulaire soumis', this.reservationData);
+
+  // Récupérer le prix de la chambre (en fonction de l'ID)
+  this.getChambrePrice(this.reservationData.chambre_id).subscribe(
+    (prixChambre) => {
+      if (prixChambre === 0) {
+        console.error('Le prix de la chambre n\'a pas pu être récupéré.');
+        return;
+      }
+
+      console.log('Prix de la chambre récupéré:', prixChambre);
+
+      let dateDebut: Date = this.reservationData.date_debut;
+      let dateFin: Date = this.reservationData.date_fin;
+
+      if (dateDebut && dateFin) {
+        // Calcul du montant total
+        const formattedDateDebut = new Date(formatDate(dateDebut, 'yyyy-MM-dd', 'en-US'));
+        const formattedDateFin = new Date(formatDate(dateFin, 'yyyy-MM-dd', 'en-US'));
+
+        const diffEnMillisecondes = formattedDateFin.getTime() - formattedDateDebut.getTime();
+        const diffEnJours = diffEnMillisecondes / (1000 * 3600 * 24);
+
+        const montantTotal = prixChambre * diffEnJours;
+
+        this.reservationData.montant_total = montantTotal;
+        console.log('Montant total calculé:', montantTotal);
+      }
+
+      // Si l'ID existe, c'est une modification
+      if (this.reservationData.id) {
+        this.reservationService.updateReservation(this.reservationData).subscribe(
+          (response) => {
+            console.log('Réservation mise à jour avec succès!', response);
+            this.router.navigate(['/form_reservation']);
+          },
+          (error) => {
+            console.error('Erreur lors de la mise à jour de la réservation:', error);
+          }
+        );
+      }
+    },
+    (error) => {
+      console.error('Erreur lors de la récupération du prix de la chambre:', error);
+    }
+  );
+}
+*/
+
+onSubmit() {
+  console.log('Formulaire soumis', this.reservationData);
+
+  // Récupérer le prix de la chambre (en fonction de l'ID)
+  this.getChambrePrice(this.reservationData.chambre_id).subscribe(
+    (prixChambre) => {
+      if (prixChambre === 0) {
+        console.error('Le prix de la chambre n\'a pas pu être récupéré.');
+        return;
+      }
+
+      console.log('Prix de la chambre récupéré:', prixChambre);
+
+      let dateDebut: Date = this.reservationData.date_debut;
+      let dateFin: Date = this.reservationData.date_fin;
+
+      if (dateDebut && dateFin) {
+        // Calcul du montant total
+        const formattedDateDebut = new Date(formatDate(dateDebut, 'yyyy-MM-dd', 'en-US'));
+        const formattedDateFin = new Date(formatDate(dateFin, 'yyyy-MM-dd', 'en-US'));
+
+        const diffEnMillisecondes = formattedDateFin.getTime() - formattedDateDebut.getTime();
+        const diffEnJours = diffEnMillisecondes / (1000 * 3600 * 24);
+
+        const montantTotal = prixChambre * diffEnJours;
+
+        this.reservationData.montant_total = montantTotal;
+        console.log('Montant total calculé:', montantTotal);
+      }
+
+      // Si l'ID existe, c'est une modification
+      if (this.reservationData.id) {
+        this.reservationService.updateReservation(this.reservationData).subscribe(
+          (response) => {
+            console.log('Réservation mise à jour avec succès!', response);
+            Swal.fire(
+              'Succès!',
+              'La réservation a été mise à jour avec succès.',
+              'success'
+            ).then(() => {
+            
+              // Recharger la page après le clic sur OK
+              location.reload(); // Rechargement de la page
+            });
+          },
+          (error) => {
+            console.error('Erreur lors de la mise à jour de la réservation:', error);
+            Swal.fire(
+              'Erreur!',
+              'Une erreur est survenue lors de la mise à jour de la réservation. Veuillez réessayer plus tard.',
+              'error'
+            );
+          }
+        );
+      }
+    },
+    (error) => {
+      console.error('Erreur lors de la récupération du prix de la chambre:', error);
+      Swal.fire(
+        'Erreur!',
+        'Une erreur est survenue lors de la récupération du prix de la chambre. Veuillez réessayer plus tard.',
+        'error'
+      );
+    }
+  );
 }
 
 
 
+
+deleteReservation(reservation: any): void {
+  console.log('Reservation ID to delete:', reservation.id);
+
+  // Afficher une alerte de confirmation avant la suppression
+  Swal.fire({
+    title: `Are you sure you want to delete this reservation?`,
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Appeler la méthode du service pour supprimer la réservation
+      this.reservationService.deleteReservation(reservation.id).subscribe(
+        () => {
+          // Afficher un message de succès après la suppression
+          Swal.fire(
+            'Deleted!',
+            `Reservation ${reservation.id} has been deleted successfully.`,
+            'success'
+          ).then(() => {
+            // Actualiser la page après la suppression réussie
+            window.location.reload();
+          });
+        },
+        (error) => {
+          console.error('Error deleting reservation:', error);
+          // Afficher un message d'erreur si la suppression échoue
+          Swal.fire(
+            'Error!',
+            'An error occurred while deleting the reservation.',
+            'error'
+          );
+        }
+      );
+    }
+  });
 }
 
 
+logout() {
+  // Supprimer les informations de l'utilisateur du localStorage
+  localStorage.clear();
+
+  // Affichage d'un message de succès
+  Swal.fire(
+    'Succès!',
+    'Vous êtes déconnecté avec succès!',
+    'success'
+  ).then(() => {
+    // Rediriger l'utilisateur vers la page de connexion
+    this.router.navigate(['/login']);
+  });
+}
 
 
+}
